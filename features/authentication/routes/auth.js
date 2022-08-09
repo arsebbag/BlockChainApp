@@ -35,7 +35,6 @@ router.route("/login").post(async (req, res, next) => {
 
         if (req.session.user.role == 'M')// Manager
         {
-          console.log("SUCCESS")//"SUCCESS"
           res.json("Manager authenticated")// need to add all person details
         } else if (req.session.user.role == 'B') {
           res.send("Basic user authenticated");
@@ -62,7 +61,7 @@ router.route("/register").post((req, res) => {
       birthday: req.body.birthday,
       username: req.body.username,
       password: hashedPassword,
-      role: req.body.role
+      role: null
     });
 
     await newUser.save();

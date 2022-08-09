@@ -25,25 +25,26 @@ router.route("/").get((req, res, next) => {
 router.route("/create").post(async (req, res) => {
     try{
         const data = req.body
-        let srcUser = await Utils.findUserDetails(data.ownerId)
+        let user = await Utils.findUserDetails(data.ownerId)
 
         //check if user exist
-        if (srcUser == null) {
+        if (user == null) {
             res.send(`user ID - ${data.ownerId} doesn't exist, can't create this account!`)
         }
         //check if this user have already an account
         let accountsCount = await CountUserID(data.ownerId);//.then(res => console.log(res)).catch(err => console.log(err);
         if (accountsCount >= 1) {
-            res.send(`user ${srcUser.username}, no. ${data.ownerId} already have an account!`);
+            res.send(`user ${user.username}, no. ${data.ownerId} already have an account!`);
         } else{
             //notif
+            await Utils.updateUserRole(user.id, 'B')
             let newAccount = new Account({
                 ownerId: data.ownerId,
                 balance: data.balance,// - not need it if the manager give money + create func addMoneyToAccount()
                 managerId: data.managerId
             });
             await newAccount.save();
-            res.send({ "message": "Account created", "accountDetails": newAccount, "zero": zeroUsers });
+            res.send({ "message": "Account created", "accountDetails": newAccount });
         } 
     }catch(err){
         console.log(err)// res.send(err)

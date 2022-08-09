@@ -54,7 +54,7 @@ const addLoan = async (req, res) => {
     // add check balance - if not - var io = io.listen(server); io.clients[sessionID].send()
     let zeroUsers = Utils.getAllUserZero();
     await newLoan.save();
-    res.send({ "message": "Loan created", "loanDetails":newLoan, "zero": zeroUsers });
+    res.send({ "message": "Loan created", "loanDetails":newLoan});
     
 }
 

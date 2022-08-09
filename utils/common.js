@@ -91,6 +91,16 @@ async function updateAccountDetails(accountId, newBalance, newManager) {
     }
     return "1 document updated"
 }
+async function updateUserRole(userId, newRole) {
+    try {
+        await User.findOneAndUpdate({ _id: userId }, {
+            role: newRole,
+        }, { new: true });
+    } catch (error) {
+        return error
+    }
+    return "1 document updated"
+}
 ////#endregion - accounts.
 
 //#region - user's functions 
@@ -154,6 +164,6 @@ module.exports = {
     loanAutorization,
     transactionAutorization,
     addMoneyToAccount,
-    subMoneyfromAccount
-
+    subMoneyfromAccount,
+    updateUserRole
 };

@@ -73,17 +73,16 @@ async function checkBalance(accountId) {
 
 async function addMoneyToAccount(account, amount) {
     let newB = account.balance + amount //maybe put all the money in LevCoin
-
-    updateAccount(account.id, newB)
-
+    updateAccountDetails(account.id, newB, account.managerId)
 }
 async function subMoneyfromAccount(account, amount) {
-    account.balance -= amount// if <= 0 need to create event to manager
+    let newB = account.balance - amount// if <= 0 need to create event to manager
+    updateAccountDetails(account.id, newB, account.managerId)
 }
 
-async function updateAccount(accountid, newBalance, newManager) {
+async function updateAccountDetails(accountId, newBalance, newManager) {
     try {
-        await Account.findOneAndUpdate({ _id: accountid }, {
+        await Account.findOneAndUpdate({ _id: accountId }, {
             balance: newBalance,
             managerId: newManager,
         }, { new: true });
@@ -97,9 +96,10 @@ async function updateAccount(accountid, newBalance, newManager) {
 //#region - user's functions 
 async function getAllUserZero() {
     let accounts = await Account.find({ "balance": { $lte: 0 } }).distinct('ownerId');// get all accountIds with balance = 0.
-    let users = await User.find({ "_id": { $in: accounts } }).distinct('_id');
+    console.log(accounts)
+    let users = await User.find({ "_id": { $in: accounts } });
+    console.log(users)
     return users;
-
 }
 
 async function findUserDetails(userId) {
@@ -147,7 +147,7 @@ module.exports = {
     //getDateFromString,
     isManager,
     findAccountDetails,
-    updateAccount,
+    updateAccountDetails,
     findUserDetails,
     checkBalance,
     getAllUserZero,

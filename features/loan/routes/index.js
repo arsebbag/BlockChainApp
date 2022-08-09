@@ -39,7 +39,7 @@ const addLoan = async (req, res) => {
     if (!getAuth.cond) {
         res.send(getAuth.message);
     }
-    //handle accounts Balances.
+    //handle accounts Balances for the loan.
     Utils.addMoneyToAccount(srcAcc, data.amount)
     Utils.subMoneyfromAccount(dstAcc, data.amount)
 
@@ -52,9 +52,9 @@ const addLoan = async (req, res) => {
         duration: data.duration
     });
     // add check balance - if not - var io = io.listen(server); io.clients[sessionID].send()
-    
+    let zeroUsers = Utils.getAllUserZero();
     await newLoan.save();
-    res.send({"message":"Loan created", "loan":newLoan });
+    res.send({ "message": "Loan created", "loanDetails":newLoan, "zero": zeroUsers });
     
 }
 

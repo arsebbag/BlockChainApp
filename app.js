@@ -55,6 +55,9 @@ app.listen(port, () => {
 const connectToDB = require('./config/mongooseConnect')
 connectToDB();
 
+var notifyRouter = require("./features/notifyManager/routes/notifyRouter");
+app.use("/notify", notifyRouter);
+
 // const initChain = require('./config/BlockChainInit')
 // initChain();
 

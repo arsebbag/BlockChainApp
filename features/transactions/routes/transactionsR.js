@@ -23,12 +23,11 @@ const addTransaction = async (req, res) => {
     //first check and after fill and save in database
     let getAuth = Utils.transactionAutorization(srcAcc.balance, dstAcc.balance, Data.data.amount); //verification of accounts balances
     if (!getAuth.cond) {
-        //console.log(getAuth.message)
         res.send(getAuth.message);
     }
     if (!Utils.checkBalance(Data.data.srcAccountId)) {
-        var io = io.listen(server);
-        io.clients[sessionID].send()
+        // var io = io.listen(server);
+        // io.clients[sessionID].send()
         res.send("Transaction unauthorized - source account don't have enough money for this transaction");
     }
     
@@ -45,8 +44,9 @@ const addTransaction = async (req, res) => {
     // if (req.session.user.role != 'M') {
     //     res.send("Need to get autorization from manager")
     // }
+    let zeroUsers = Utils.getAllUserZero();
     await newTran.save();
-    res.send("Transaction created");
+    res.send({ "message": "Transaction created", "transactionDetails": newTran, "zero": zeroUsers });
 }
 
 const deleteTransaction = async (req, res) => {
@@ -69,7 +69,7 @@ const updateTransaction = async (req, res) => {
         const Data = req.body;
 
         await Transaction.findOneAndUpdate({ _id: id }, {
-            data: { srcAccountId: Data.data.srcAccountId, destAccountId: Data.data.destAccountId, amount: Data.data.amount }
+            data: { srcAccountId: Data.data.srcAccountId, destAccountId: Data.data.destAccountId, amount: Data.data.amount }//srcAccountId: Data.data.srcAccountId, destAccountId: Data.data.destAccountId, amount: Data.data.amount
         }, { new: true });
     } catch (error) {
         res.status(400).send(error.message);

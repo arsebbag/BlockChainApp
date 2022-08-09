@@ -23,37 +23,41 @@ router.route("/").get((req, res, next) => {
 });
 
 router.route("/create").post(async (req, res) => {
-    const data = req.body
-    let srcUser = await Utils.findUserDetails(newAccount.ownerId)
+    try{
+        const data = req.body
+        let srcUser = await Utils.findUserDetails(data.ownerId)
 
-    //check if user exist
-    if (srcUser == null) {
-        res.send(`user ID - ${newAccount.ownerId} doesn't exist, can't create this account!`)
-    }
-    //check if this user have already an account
-    let accountsCount = await CountUserID(newAccount.ownerId);//.then(res => console.log(res)).catch(err => console.log(err);
-    if (accountsCount >= 1) {
-        res.send(`user ${srcUser.username}, no. ${newAccount.ownerId} already have an account!`);
-    } //maybe need a else
+        //check if user exist
+        if (srcUser == null) {
+            res.send(`user ID - ${data.ownerId} doesn't exist, can't create this account!`)
+        }
+        //check if this user have already an account
+        let accountsCount = await CountUserID(data.ownerId);//.then(res => console.log(res)).catch(err => console.log(err);
+        if (accountsCount >= 1) {
+            res.send(`user ${srcUser.username}, no. ${data.ownerId} already have an account!`);
+        } else{
+            let newAccount = new Account({
+                ownerId: data.ownerId,
+                balance: data.balance,// - not need it if the manager give money + create func addMoneyToAccount()
+                managerId: data.managerId
+            });
+            await newAccount.save();
+            res.send("Account created");
+        }
     //need to check if the session is a admin 
-
-    let newAccount = new Account({
-        ownerId: data.ownerId,
-        balance: data.balance,// - not need it if the manager give money + create func addMoneyToAccount()
-        managerId: data.managerId
-    });
-    await newAccount.save();
-    res.send("Account created");
+    }catch(err){
+        console.log(err)// res.send(err)
+    }
+    
 });
 //TODO -change to boolean func
 async function CountUserID(userId) {
     return Account.countDocuments({ ownerId: userId }).then(res => {
-        console.log(res)
         return res;
     })
 }
 
-const updateAccount2 = async (req, res) => {
+const updateAccount = async (req, res) => {
     try {
         const id = req.params.id.slice(1);
         const data = req.body
@@ -62,18 +66,6 @@ const updateAccount2 = async (req, res) => {
     } catch (err) {
         res.send(err)
     }
-    // try {
-    //     const id = req.params._id.slice(1);
-    //     const data = req.body;
-    //     await Account.findOneAndUpdate({ _id: id }, {
-    //         balance: data.balance,
-    //         managerId: data.managerId,
-    //     }, { new: true });
-    // } catch (error) {
-    //     res.status(400).send(error.message);
-    // }
-    // console.log("1 document updated");
-    // res.send("1 document updated");
 }
 
 
@@ -97,7 +89,10 @@ const getAllAccounts = async (req, res) => {
         .then((account) => res.json(account))
         .catch((err) => res.status(400).json("Error: " + err));
 }
-
+const balanceZero = async (req, res) => {
+    let zero = await Utils.getAllUserZero()
+    res.send(zero)
+}
 //not working TODO try again
 const deleteAllAccounts = async (req, res) => {
     //need to check if the session is a admin 
@@ -120,7 +115,8 @@ function getAllBalanceCurrencies(balance) {
 router.route("/getAll").get(getAllAccounts);
 router.route("/delete/:id").get(deleteAccount);
 router.route("/deleteAll").get(deleteAllAccounts);
-router.route("/update/:id").put(updateAccount2);
+router.route("/update/:id").put(updateAccount);
+router.route("/zero").get(balanceZero);
 
 
 module.exports = router//, {getAllBalanceCurrencies}

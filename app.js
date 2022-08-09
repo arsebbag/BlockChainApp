@@ -10,6 +10,10 @@ const bcrypt = require("bcryptjs");
 const session = require("express-session");
 const bodyParser = require("body-parser");
 const socket = require("socket.io");
+const messageRoutes = require("./features/chat/routes/messages");
+const authRoutes = require("./features/chat/routes/auth");
+
+
 
 //----------------------------------------- END OF IMPORTS---------------------------------------------------
 var app = express();
@@ -40,6 +44,9 @@ app.use(
     saveUninitialized: true,
   })
 );
+app.use("/api/auth", authRoutes);
+app.use("/api/messages", messageRoutes);
+
 app.use(cookieParser("secretcode"));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -69,7 +76,7 @@ io.on("connection", (socket) => {
   socket.on("notify-user", (userId) => {
     console.log(userId);
 
-    socket.emit("zero",);
+    socket.emit("zero" );
   });
 
   socket.on("add-user", (userId) => {

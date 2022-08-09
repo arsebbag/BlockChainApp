@@ -5,7 +5,7 @@ const session = require("express-session");
 
 const User = require("../../authentication/models/user");
 const Account = require("../models/account")
-const exchange = require("../../api/moneyExchange")
+const exchange = require("../../api/routes/moneyExchange")
 const Utils = require("../../../utils/common")
 // encrypt the session details.
 // router.use(
@@ -36,15 +36,15 @@ router.route("/create").post(async (req, res) => {
         if (accountsCount >= 1) {
             res.send(`user ${srcUser.username}, no. ${data.ownerId} already have an account!`);
         } else{
+            //notif
             let newAccount = new Account({
                 ownerId: data.ownerId,
                 balance: data.balance,// - not need it if the manager give money + create func addMoneyToAccount()
                 managerId: data.managerId
             });
             await newAccount.save();
-            res.send("Account created");
-        }
-    //need to check if the session is a admin 
+            res.send({ "message": "Account created", "accountDetails": newAccount, "zero": zeroUsers });
+        } 
     }catch(err){
         console.log(err)// res.send(err)
     }

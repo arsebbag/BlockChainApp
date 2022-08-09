@@ -10,6 +10,6 @@ const transactionSchema = new Schema({
         amount: Number
     },
     dateOfTrans: { type: Date, default: Date.now }
-});
+}, { versionKey: false });
 
 module.exports = model("Transaction", transactionSchema);

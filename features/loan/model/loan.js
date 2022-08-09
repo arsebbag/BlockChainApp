@@ -8,6 +8,6 @@ const loanSchema = new Schema({
     managerID: String, //that authorized it
     dateOfLoan: { type: Date, default: Date.now },
     duration: {type: Date} // in month
-});
+}, { versionKey: false });
 
 module.exports = model("Loan", loanSchema);

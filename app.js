@@ -76,7 +76,7 @@ io.on("connection", (socket) => {
   socket.on("notify-user", (userId) => {
     console.log(userId);
 
-    socket.emit("zero" );
+    socket.emit("zero", [] );
   });
 
   socket.on("add-user", (userId) => {

@@ -23,5 +23,6 @@ router.use("/account", require("../features/account/routes/index"))
 router.use("/transaction", require("../features/transactions/routes/transactionsR"))
 //router.use("/messages", require("../features/messages/routes/"))
 router.use("/loan", require("../features/loan/routes/index"))
+router.use("/requestedLoan", require("../features/loan/routes/reqLoan"))
 
 module.exports = router;

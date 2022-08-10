@@ -42,7 +42,7 @@ router.route("/login").post(async (req, res, next) => {
 
           res.send({ message: "Basic user authenticated", userDetails: sessUser, accountDetails: account })
         }
-        if (sessUser.role == null){
+        else if (sessUser.role == null){
           res.send({ message: "Authentification failed - manager need to aprove this account"});
         }
         else {

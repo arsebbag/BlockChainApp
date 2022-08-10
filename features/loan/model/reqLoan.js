@@ -1,7 +1,6 @@
 const { Schema, model } = require("mongoose");
-const account = require("../../account/models/account")
 
-const loanSchema = new Schema({
+const reqLoanSchema = new Schema({
     srcAccountId: String,//{type: Schema.Types.ObjectId, ref: 'Account'},
     destAccountId: String, //{type: Schema.Types.ObjectId, ref: 'Account'},
     amount: Number,
@@ -10,4 +9,4 @@ const loanSchema = new Schema({
     approved: Number
 }, { versionKey: false });
 
-module.exports = model("Loan", loanSchema);
+module.exports = model("requestedLoan", reqLoanSchema);

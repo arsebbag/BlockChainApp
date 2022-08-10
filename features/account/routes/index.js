@@ -63,7 +63,7 @@ const updateAccount = async (req, res) => {
     try {
         const id = req.params.id.slice(1);
         const data = req.body
-        let result = await Utils.updateAccount(id, data.balance, data.managerId)
+        let result = await Utils.updateAccountDetails(id, data.balance, data.managerId)
         res.send(result)
     } catch (err) {
         res.send(err)

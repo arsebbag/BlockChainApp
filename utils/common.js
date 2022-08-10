@@ -75,6 +75,7 @@ async function addMoneyToAccount(account, amount) {
     let newB = account.balance + amount //maybe put all the money in LevCoin
     updateAccountDetails(account.id, newB, account.managerId)
 }
+
 async function subMoneyfromAccount(account, amount) {
     let newB = account.balance - amount// if <= 0 need to create event to manager
     updateAccountDetails(account.id, newB, account.managerId)

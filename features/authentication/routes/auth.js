@@ -5,7 +5,9 @@ const session = require("express-session");
 const cors = require("cors");
 
 const User = require("../models/user");
+const Account = require("../../account/models/account")
 
+//const Utils = require("../../../utils");
 
 router.use(
   cors({
@@ -28,16 +30,17 @@ router.route("/login").post(async (req, res, next) => {
     if (err) throw err;
     if (!user) res.send("No user exists");
     else {
-      req.logIn(user, async (err) => { //logIn???? where is it? - to asaf
+      req.logIn(user, async (err) => { 
         if (err) throw err;
-        let sessUser = await User.findOne({ username: req.body.username }).exec()
-        req.session.user = sessUser;
-
-        if (req.session.user.role == 'M')// Manager
+        let sessUser = await User.findOne({ username: req.body.username }).exec().catch(() => sessUser = null)
+        let account = await Account.findOne({ ownerId: sessUser.id }).exec().catch(() => account = null)
+        if (sessUser.role == 'M')// Manager
         {
-          res.json("Manager authenticated")// need to add all person details
-        } else if (req.session.user.role == 'B') {
-          res.send("Basic user authenticated");
+
+          res.send({ message: "Manager authenticated", userDetails: sessUser, accountDetails: account })
+        } else if (sessUser.role == 'B') {
+
+          res.send({ message: "Basic user authenticated", userDetails: sessUser, accountDetails: account })
         }
         else {
           res.send("Authentification failed");
@@ -51,9 +54,9 @@ router.route("/register").post((req, res) => {
   User.findOne({ username: req.body.username }, async (err, doc) => {
     if (err) throw err;
     if (doc) res.send("User already exists");
-    
+
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
-    
+
     const newUser = new User({
       firstName: req.body.firstName,
       lastName: req.body.lastName,
@@ -66,7 +69,7 @@ router.route("/register").post((req, res) => {
 
     await newUser.save();
     res.send("User created");
-    
+
   });
 });
 
@@ -92,24 +95,46 @@ const removeAllUsers = (async (req, res) => {
   } catch (error) { res.status(400).send(error.message); }
 });
 
-const updateUser = async (req, res) => {
+router.route("/getUser/:username").get(async (req, res, next) => {
   try {
-    const id = req.params.id.slice(1);
-    const Data = req.body;
-
-    await User.findOneAndUpdate({ _id: id }, {
-      
-    }, { new: true });
-  } catch (error) {
-    res.status(400).send(error.message);
+    const users = await User.find({
+      username: { $eq: req.params.username },
+    }).select([
+      "email",
+      "phone",
+      "firstName",
+      "lastName",
+      "username",
+      "avatarImage",
+      "role",
+      "_id",
+      "balance",
+    ]);
+    return res.json(users);
+  } catch (ex) {
+    next(ex);
   }
-  console.log("1 document updated");
-  res.send("1 document updated");
-}
+});
+
+
+// const updateUser = async (req, res) => {
+//   try {
+//     const id = req.params.id.slice(1);
+//     const Data = req.body;
+
+//     await User.findOneAndUpdate({ _id: id }, {
+
+//     }, { new: true });
+//   } catch (error) {
+//     res.status(400).send(error.message);
+//   }
+//   console.log("1 document updated");
+//   res.send("1 document updated");
+// }
 
 /// user's router
 router.route("/remove").delete(deleteUser);
 router.route("/removeall").delete(removeAllUsers);
-router.route("/update/:id").put(updateUser);
+//router.route("/update/:id").put(updateUser);
 
 module.exports = router;

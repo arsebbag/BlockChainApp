@@ -24,15 +24,15 @@ router.route("/").get((req, res, next) => {
 
 router.route("/create").post(async (req, res) => {
     try{
-        const data = req.body
-        let user = await Utils.findUserDetails(data.ownerId)
+        const data = req.body;
+        let user = await Utils.findUserDetails(data.ownerId);
 
         //check if user exist
         if (user == null) {
             res.send(`user ID - ${data.ownerId} doesn't exist, can't create this account!`)
         }
         //check if this user have already an account
-        let accountsCount = await CountUserID(data.ownerId);//.then(res => console.log(res)).catch(err => console.log(err);
+        let accountsCount = await CountUserID(data.ownerId);
         if (accountsCount >= 1) {
             res.send(`user ${user.username}, no. ${data.ownerId} already have an account!`);
         } else{

@@ -9,7 +9,7 @@ const user = new Schema({
   ...Person,
   ...Credentials,
   role: { type: String }, //will be 'A' for admin OR 'B' for basic user
-  manager: Number //id of manager
+  
 }, { versionKey: false });
 
 module.exports = model("User", user);

@@ -5,7 +5,7 @@ const session = require("express-session");
 
 const User = require("../../authentication/models/user");
 const Account = require("../models/account")
-const exchange = require("../../api/routes/moneyExchange")
+const Exchange = require("../../api/routes/moneyExchange")
 const Utils = require("../../../utils/common")
 // encrypt the session details.
 // router.use(
@@ -23,10 +23,10 @@ router.route("/").get((req, res, next) => {
 });
 
 router.route("/create").post(async (req, res) => {
-    try{
+    try {
         const data = req.body;
         let user = await Utils.findUserDetails(data.ownerId);
-
+        
         //check if user exist
         if (user == null) {
             res.send(`user ID - ${data.ownerId} doesn't exist, can't create this account!`)
@@ -35,7 +35,7 @@ router.route("/create").post(async (req, res) => {
         let accountsCount = await CountUserID(data.ownerId);
         if (accountsCount >= 1) {
             res.send(`user ${user.username}, no. ${data.ownerId} already have an account!`);
-        } else{
+        } else {
             //notif
             await Utils.updateUserRole(user.id, 'B')
             let newAccount = new Account({
@@ -44,12 +44,13 @@ router.route("/create").post(async (req, res) => {
                 managerId: data.managerId
             });
             await newAccount.save();
+            Exchange.buyLevCoin()
             res.send({ "message": "Account created", "accountDetails": newAccount });
-        } 
-    }catch(err){
+        }
+    } catch (err) {
         console.log(err)// res.send(err)
     }
-    
+
 });
 //TODO -change to boolean func
 async function CountUserID(userId) {
@@ -104,12 +105,9 @@ const deleteAllAccounts = async (req, res) => {
 }
 
 
-function getAllBalanceCurrencies(balance) {
-    return {
-        "LEVCOIN": balance,
-        "ILS": exchange.LEVCOINILS * balance,
-        "USD": exchange.LEVCOIN * balance
-    }
+const exchangeRates = async (req, res) => {
+    let amountToChange = req.body.amount
+    res.send(await Exchange.getAllBalanceCurrencies(amountToChange))
 }
 //Account routes 
 
@@ -118,6 +116,7 @@ router.route("/delete/:id").get(deleteAccount);
 router.route("/deleteAll").get(deleteAllAccounts);
 router.route("/update/:id").put(updateAccount);
 router.route("/zero").get(balanceZero);
+router.route("/exchange").post(exchangeRates);
 
 
 module.exports = router//, {getAllBalanceCurrencies}

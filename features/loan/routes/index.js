@@ -28,9 +28,11 @@ const addLoan = async (req, res) => {
     // if (req.session.user.role == 'M') {
     //     //check account - amount enough to validate the loan
     // }
+
     let srcAcc = await Utils.findAccountDetails(data.srcAccountId)
     let dstAcc = await Utils.findAccountDetails(data.destAccountId)
-    // let srcUser = await Utils.findUserDetails(srcAcc.ownerId)
+
+    let srcUser = await Utils.findUserDetails(srcAcc.ownerId)
     // let dstUser = await Utils.findUserDetails(dstAcc.ownerId)
 
     /////check authorizations/////
@@ -45,9 +47,8 @@ const addLoan = async (req, res) => {
 
     let newLoan = new Loan({
         srcAccountId: data.srcAccountId,
-        destAccountId: data.destAccountId,
         amount: data.amount,
-        managerID: data.managerID,
+        managerID: srcUser.id,//data.managerID,
         dateOfLoan: Date.now(),
         duration: data.duration
     });

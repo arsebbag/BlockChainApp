@@ -29,34 +29,41 @@ const addLoan = async (req, res) => {
     //     //check account - amount enough to validate the loan
     // }
 
-    let srcAcc = await Utils.findAccountDetails(data.srcAccountId)
-    let dstAcc = await Utils.findAccountDetails(data.destAccountId)
+    let srcAcc = await Utils.findAccountDetails(data.srcAccountId).catch(() => srcAcc = null)
+    let dstAcc = await Utils.findAccountDetails(data.destAccountId).catch(() => dstAcc = null)
 
-    let srcUser = await Utils.findUserDetails(srcAcc.ownerId)
-    // let dstUser = await Utils.findUserDetails(dstAcc.ownerId)
+    let srcUser = await Utils.findUserDetails(srcAcc.ownerId).catch(() => srcUser = null)
+    let dstUser = await Utils.findUserDetails(dstAcc.ownerId).catch(() => dstUser = null)
 
+    if (!srcAcc) {
+        res.send("source account doesn't exist, try again!")
+    }
+    if (!dstAcc) {
+        res.send("destination account doesn't exist, try again!")
+    }
     /////check authorizations/////
-    let getAuth = Utils.loanAutorization(srcAcc.balance, dstAcc.balance, newLoan.amount); //verification of accounts balances
+    let getAuth = Utils.loanAutorization(srcAcc.balance, dstAcc.balance, data.amount); //verification of accounts balances
 
     if (!getAuth.cond) {
         res.send(getAuth.message);
     }
     //handle accounts Balances for the loan.
-    Utils.addMoneyToAccount(srcAcc, data.amount)
-    Utils.subMoneyfromAccount(dstAcc, data.amount)
+    Utils.addMoneyToAccount(dstAcc, data.amount)
+    Utils.subMoneyfromAccount(srcAcc, data.amount)
 
     let newLoan = new Loan({
         srcAccountId: data.srcAccountId,
+        destAccountId: data.destAccountId,
         amount: data.amount,
-        managerID: srcUser.id,//data.managerID,
+        managerID: data.managerID,
         dateOfLoan: Date.now(),
         duration: data.duration
     });
     // add check balance - if not - var io = io.listen(server); io.clients[sessionID].send()
-    let zeroUsers = Utils.getAllUserZero();
+    //let zeroUsers = Utils.getAllUserZero();
     await newLoan.save();
-    res.send({ "message": "Loan created", "loanDetails":newLoan});
-    
+    res.send({ "message": "Loan created", "loanDetails": newLoan });
+
 }
 
 const deleteLoan = async (req, res) => {
@@ -74,7 +81,6 @@ const deleteLoan = async (req, res) => {
 }
 
 const deleteAllLoan = async (req, res) => {
-    //need to check if the session is a admin 
     try {
         await Loan.remove({})
     } catch (error) { res.status(400).send(error.message); }

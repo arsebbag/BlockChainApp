@@ -44,7 +44,7 @@ router.route("/create").post(async (req, res) => {
                 managerId: data.managerId
             });
             await newAccount.save();
-            Exchange.buyLevCoin()
+            Exchange.updateLevCoinValue()
             res.send({ "message": "Account created", "accountDetails": newAccount });
         }
     } catch (err) {

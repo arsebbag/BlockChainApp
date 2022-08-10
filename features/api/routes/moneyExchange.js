@@ -1,6 +1,6 @@
 // js file to change money(USD, ILS, LevCoin) via api of money exchange
 const axios = require("axios")
-
+const Account = require("../../account/models/account")
 
 const strUSDtoILS = "&base=USD&target=ILS"
 const strILStoUSD = "&base=ILS&target=USD"
@@ -38,16 +38,23 @@ async function changeILStoUSD(amount) {
 var LEVCOIN = 1; // 1 LevCoin is equals to 1 dollars
 //var LEVCOINILS = LEVCOIN * changeUSDtoILS(1);
 var countLevCoin = 0;
+var countUsers = 0;
 
+async function countAccounts() {
+    return Account.countDocuments({}).then(res => {
+        return res;
+    });
+}
 async function changeToILS() {
     let rate = await changeUSDtoILS(1);
     console.log(rate)
     return LEVCOIN * rate
 }
 //change LEVCOIN value
-function buyLevCoin(num) {
+function updateLevCoinValue(num) {
+    countUsers += 1;
     countLevCoin += num;
-    LEVCOIN = Math.ceil(LEVCOIN - (LEVCOIN / 10000 + countLevCoin))
+    LEVCOIN = Math.ceil(LEVCOIN - (LEVCOIN / 10000 + countLevCoin - countUsers))
     console.log("LEVCOIN", LEVCOIN)
 }
 
@@ -62,7 +69,7 @@ async function getAllBalanceCurrencies(amount) {
 module.exports = {
     changeILStoUSD,
     changeUSDtoILS,
-    buyLevCoin,
+    updateLevCoinValue,
     LEVCOIN,
     //LEVCOINILS,
     getAllBalanceCurrencies

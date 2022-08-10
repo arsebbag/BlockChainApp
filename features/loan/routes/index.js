@@ -35,7 +35,8 @@ const addLoan = async (req, res) => {
 
     let srcUser = await Utils.findUserDetails(srcAcc.ownerId).catch(() => srcUser = null)
     let dstUser = await Utils.findUserDetails(dstAcc.ownerId).catch(() => dstUser = null)
-
+    let pickLoanDest = Account.find({ $ne: srcAcc.id })
+    console.log(pickLoanDest)
     if (!srcAcc) {
         res.send("source account doesn't exist, try again!")
     }
@@ -53,6 +54,7 @@ const addLoan = async (req, res) => {
     Utils.addMoneyToAccount(dstAcc, data.amount)
     Utils.subMoneyfromAccount(srcAcc, data.amount)
 
+    
     let newLoan = new Loan({
         srcAccountId: data.srcAccountId,
         destAccountId: data.destAccountId,

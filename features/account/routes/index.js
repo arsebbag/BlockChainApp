@@ -25,39 +25,41 @@ router.route("/").get((req, res, next) => {
 router.route("/create").post(async (req, res) => {
     try {
         const data = req.body;
+        if (!data.ownerId.match(/^[0-9a-fA-F]{24}$/)) {
+            return res.send(`${data.ownerId} id - have a bad format!`)
+        }
         let user = await Utils.findUserDetails(data.ownerId);
-        
         //check if user exist
         if (user == null) {
-            res.send(`user ID - ${data.ownerId} doesn't exist, can't create this account!`)
+            return res.send(`user ID - ${data.ownerId} doesn't exist, can't create this account!`)
         }
         //check if this user have already an account
         let accountsCount = await CountUserID(data.ownerId);
-        if (accountsCount >= 1) {
-            res.send(`user ${user.username}, no. ${data.ownerId} already have an account!`);
-        } else {
-            //notif
-            await Utils.updateUserRole(user.id, 'B')
-            let newAccount = new Account({
-                ownerId: data.ownerId,
-                balance: data.balance,// - not need it if the manager give money + create func addMoneyToAccount()
-                managerId: data.managerId
-            });
-            await newAccount.save();
-            Exchange.updateLevCoinValue()
-            res.send({ "message": "Account created", "accountDetails": newAccount });
-        }
+        if (accountsCount) {
+            return res.send(`user ${user.username}, no. ${data.ownerId} already have an account!`);
+        } //else {
+        //notif
+        await Utils.updateUserRole(user.id, 'B')
+        let newAccount = new Account({
+            ownerId: data.ownerId,
+            balance: data.balance,// - not need it if the manager give money + create func addMoneyToAccount()
+            managerId: data.managerId
+        });
+        await newAccount.save();
+
+        Exchange.updateLevCoinValue(newAccount.balance)
+        return res.send({ "message": "Account created", "accountDetails": newAccount });
+        //  }
     } catch (err) {
         console.log(err)// res.send(err)
     }
 
 });
-//TODO -change to boolean func
+// count if this user exist and how match account
 async function CountUserID(userId) {
-    return Account.countDocuments({ ownerId: userId }).then(res => {
-        return res;
-    })
+    return await Account.countDocuments({ ownerId: userId });
 }
+
 
 const updateAccount = async (req, res) => {
     try {
@@ -81,7 +83,7 @@ const deleteAccount = async (req, res) => {
         if (!item) {
             return res.status(404).json({ success: false, msg: 'Account not found' });
         }
-        res.json({ success: true, msg: 'Account deleted.' });
+        return res.json({ success: true, msg: 'Account deleted.' });
     });
 }
 
@@ -107,7 +109,7 @@ const deleteAllAccounts = async (req, res) => {
 
 const exchangeRates = async (req, res) => {
     let amountToChange = req.body.amount
-    res.send(await Exchange.getAllBalanceCurrencies(amountToChange))
+    return res.send(await Exchange.getAllBalanceCurrencies(amountToChange))
 }
 //Account routes 
 

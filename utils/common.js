@@ -55,10 +55,8 @@ function isManager(user) {
     return user.role == "M";
 }
 async function findAccountDetails(accountId) {
-    return Account.findById(accountId).then(res => {
+    return Account.findOne({_id:accountId}).then(res => {
         return res;
-    }).catch(err => {
-        console.log(err)
     })
 }
 

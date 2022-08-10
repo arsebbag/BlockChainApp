@@ -54,7 +54,9 @@ async function changeToILS() {
 function updateLevCoinValue(num) {
     countUsers += 1;
     countLevCoin += num;
-    LEVCOIN = Math.ceil(LEVCOIN - (LEVCOIN / 10000 + countLevCoin - countUsers))
+    console.log(countLevCoin)
+    console.log(countUsers)
+    LEVCOIN = (LEVCOIN - (LEVCOIN / (100 + countLevCoin - countUsers)))//formula for the regression of the LEVCOIN
     console.log("LEVCOIN", LEVCOIN)
 }
 

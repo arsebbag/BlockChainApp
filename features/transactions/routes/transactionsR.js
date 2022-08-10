@@ -25,19 +25,19 @@ const addTransaction = async (req, res) => {
     if (!getAuth.cond) {
         res.send(getAuth.message);
     }
-    if (!Utils.checkBalance(Data.data.srcAccountId)) {
+    else if (!Utils.checkBalance(Data.data.srcAccountId)) {
         // var io = io.listen(server);
         // io.clients[sessionID].send()
         res.send("Transaction unauthorized - source account don't have enough money for this transaction");
     }
     
-    Utils.addMoneyToAccount(srcAcc, Data.data.amount)
-    Utils.subMoneyfromAccount(dstAcc, Data.data.amount)
+    Utils.addMoneyToAccount(dstAcc, Data.data.amount)
+    Utils.subMoneyfromAccount(srcAcc, Data.data.amount)
     //let block = new Block()
     let newTran = new Transaction({ //need to change here
         id: Data.id,
-        thisHash: Data.thisHash,
-        prevHash: Data.prevHash,
+        // thisHash: Data.thisHash,
+        // prevHash: Data.prevHash,
         data: Data.data,
         dateOfTrans: Date.now()
     });
@@ -46,7 +46,7 @@ const addTransaction = async (req, res) => {
     // }
     let zeroUsers = Utils.getAllUserZero();
     await newTran.save();
-    res.send({ "message": "Transaction created", "transactionDetails": newTran, "zero": zeroUsers });
+    res.send({ "message": "Transaction created", "transactionDetails": newTran });
 }
 
 const deleteTransaction = async (req, res) => {

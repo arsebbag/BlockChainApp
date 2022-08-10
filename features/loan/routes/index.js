@@ -29,45 +29,42 @@ const addLoan = async (req, res) => {
     // if (req.session.user.role == 'M') {
     //     //check account - amount enough to validate the loan
     // }
-
-    let srcAcc = await Utils.findAccountDetails(data.srcAccountId).catch(() => srcAcc = null)
-    let dstAcc = await Utils.findAccountDetails(data.destAccountId).catch(() => dstAcc = null)
-
-    let srcUser = await Utils.findUserDetails(srcAcc.ownerId).catch(() => srcUser = null)
-    let dstUser = await Utils.findUserDetails(dstAcc.ownerId).catch(() => dstUser = null)
-    let pickLoanDest = Account.find({ $ne: srcAcc.id })
-    console.log(pickLoanDest)
-    if (!srcAcc) {
-        res.send("source account doesn't exist, try again!")
+    if (data.srcAccountId.match(/^[0-9a-fA-F]{24}$/) && data.destAccountId.match(/^[0-9a-fA-F]{24}$/)) {
+        var srcAcc = await Utils.findAccountDetails(data.srcAccountId)
+        var dstAcc = await Utils.findAccountDetails(data.destAccountId)
+        var srcUser = await Utils.findUserDetails(srcAcc.ownerId)
+        var dstUser = await Utils.findUserDetails(dstAcc.ownerId)
     }
-    else if (!dstAcc) {
-        res.send("recipient account doesn't exist, try again!")
+    if (!srcAcc || !dstAcc) {
+        res.end("recipient or lenders account doesn't exist, try again!")
     }
-    /////check authorizations/////
-    let getAuth = Utils.loanAutorization(srcAcc.balance, dstAcc.balance, data.amount); //verification of accounts balances
+    else {
+        let lendersId = (await Account.find({ $ne: srcAcc.id }).select("_id"));
+        console.log("lenders:\n", lendersId)
+        /////check authorizations/////
+        let getAuth = Utils.loanAutorization(srcAcc.balance, dstAcc.balance, data.amount); //verification of accounts balances
 
-    if (!getAuth.cond) {
-        errorMessage = getAuth.message;
-        //res.send(getAuth.message);
+        if (!getAuth.cond) {
+            errorMessage = getAuth.message;
+            //res.send(getAuth.message);
+        }
+        //handle accounts Balances for the loan.
+        Utils.addMoneyToAccount(dstAcc, data.amount)
+        Utils.subMoneyfromAccount(srcAcc, data.amount)
+
+        let newLoan = new Loan({
+            srcAccountId: data.srcAccountId,
+            destAccountId: data.destAccountId,
+            amount: data.amount,
+            dateOfLoan: Date.now(),
+            duration: data.duration,
+            approved: 1
+        });
+        // add check balance - if not - var io = io.listen(server); io.clients[sessionID].send()
+        //let zeroUsers = Utils.getAllUserZero();
+        await newLoan.save();
+        res.send({ "message": "Loan created", "loanDetails": newLoan });
     }
-    //handle accounts Balances for the loan.
-    Utils.addMoneyToAccount(dstAcc, data.amount)
-    Utils.subMoneyfromAccount(srcAcc, data.amount)
-
-    
-    let newLoan = new Loan({
-        srcAccountId: data.srcAccountId,
-        destAccountId: data.destAccountId,
-        amount: data.amount,
-        dateOfLoan: Date.now(),
-        duration: data.duration,
-        approved:1
-    });
-    // add check balance - if not - var io = io.listen(server); io.clients[sessionID].send()
-    //let zeroUsers = Utils.getAllUserZero();
-    await newLoan.save();
-    res.send({ "message": "Loan created", "loanDetails": newLoan });
-
 }
 
 const deleteLoan = async (req, res) => {

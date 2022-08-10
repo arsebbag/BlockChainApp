@@ -24,6 +24,13 @@ router.route("/").get((req, res, next) => {
 
 router.route("/create").post(async (req, res) => {
     try {
+
+        // {
+        //     "ownerId": "",
+        //         "balance": 2,
+        //             "managerId": ""
+        // }
+
         const data = req.body;
         if (!data.ownerId.match(/^[0-9a-fA-F]{24}$/)) {
             return res.send(`${data.ownerId} id - have a bad format!`)
@@ -72,9 +79,8 @@ const updateAccount = async (req, res) => {
     }
 }
 
-
 const deleteAccount = async (req, res) => {
-    //need to check if the session is a admin 
+    //TODO: need to check if the session is a admin 
     const id = req.params.id.slice(1);
     const tran = await Account.findByIdAndRemove(id).exec(function (err, item) {
         if (err) {
@@ -93,19 +99,22 @@ const getAllAccounts = async (req, res) => {
         .then((account) => res.json(account))
         .catch((err) => res.status(400).json("Error: " + err));
 }
+
+//not working TODO try again
+const deleteAllAccounts = async (req, res) => {
+    try {
+        await Account.remove({})
+    } catch (error) { res.status(400).send(error.message); }
+    res.send("All Accounts deleted");
+}
+
+
+//Extra controllers
+
 const balanceZero = async (req, res) => {
     let zero = await Utils.getAllUserZero()
     res.send(zero)
 }
-//not working TODO try again
-const deleteAllAccounts = async (req, res) => {
-    //need to check if the session is a admin 
-    Account.remove({}).catch(err => {
-        console.log(err)
-    });
-    res.send("All accounts deleted");
-}
-
 
 const exchangeRates = async (req, res) => {
     let amountToChange = req.body.amount
@@ -122,3 +131,4 @@ router.route("/exchange").post(exchangeRates);
 
 
 module.exports = router//, {getAllBalanceCurrencies}
+

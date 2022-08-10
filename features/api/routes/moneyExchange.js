@@ -27,16 +27,9 @@ async function changeILStoUSD(amount) {
         });
 }
 
-//dbg
-// changeUSDtoILS(0.5).then((result) => {
-//     console.log(result)
-// })
-//changeILStoUSD()
-/////////////////////////
 
 // LEVCOIN settings and values
 var LEVCOIN = 1; // 1 LevCoin is equals to 1 dollars
-//var LEVCOINILS = LEVCOIN * changeUSDtoILS(1);
 var countLevCoin = 0;
 var countUsers = 0;
 

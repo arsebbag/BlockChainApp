@@ -25,14 +25,21 @@ router.use(
 );
 router.use(passport.session());
 
+//login
+// {
+//   "username": "ariel123",
+//     "password": "12345678"
+// }
+
 router.route("/login").post(async (req, res, next) => {
   await passport.authenticate("local", (err, user, info) => {
     if (err) throw err;
     if (!user) res.send("No user exists");
     else {
-      req.logIn(user, async (err) => { 
+      req.logIn(user, async (err) => {
         if (err) throw err;
         let sessUser = await User.findOne({ username: req.body.username }).exec().catch(() => sessUser = null)
+        console.log(sessUser)
         let account = await Account.findOne({ ownerId: sessUser.id }).exec().catch(() => account = null)
         if (sessUser.role == 'M')// Manager
         {
@@ -42,30 +49,44 @@ router.route("/login").post(async (req, res, next) => {
 
           res.send({ message: "Basic user authenticated", userDetails: sessUser, accountDetails: account })
         }
-        else if (sessUser.role == null){
-          res.send({ message: "Authentification failed - manager need to aprove this account"});
+        else if (sessUser.role == null) {
+          res.send({ message: "Authentification failed - manager need to aprove this account" });
         }
         else {
-          res.send({ message: "Authentification failed"});
+          res.send({ message: "Authentification failed" });
         }
       });
     }
   })(req, res, next);
 });
 
+// register
+// {
+//   "firstName": "ariel1",
+//     "lastName": "sebbag1",
+//       "birthday": "19.03.95",
+//         "email": "as1903@gmail.com",
+//           "phone": "0545965548",
+//             "username": "ariel123",
+//               "password": "12345678"
+
+// }
+
 router.route("/register").post((req, res) => {
+  
   User.findOne({ username: req.body.username }, async (err, doc) => {
     if (err) throw err;
-    if (doc) res.send("User already exists");
-
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    if (doc) return res.send("User already exists");
+    let data = req.body
+    const hashedPassword = await bcrypt.hash(data.password, 10);
 
     const newUser = new User({
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-      email: req.body.email,
-      birthday: req.body.birthday,
-      username: req.body.username,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      birthday: data.birthday,
+      phone: data.phone,
+      username: data.username,
       password: hashedPassword,
       role: null
     });
@@ -96,7 +117,7 @@ const deleteUser = async (req, res) => {
       return res.status(404).json({ success: false, msg: 'User not found' });
     }
     let userCount = await User.countDocuments({});
-    res.json({ success: true, msg: 'user deleted.', "user count:": `there are ${userCount} left`});
+    res.json({ success: true, msg: 'user deleted.', "user count:": `there are ${userCount} left` });
   });
 }
 

@@ -13,6 +13,13 @@ const mongoose = require("mongoose")
 
 const { Server } = require("socket.io")
 
+// {
+
+//     "data": {
+//         "srcAccountId": "62f2c3f2e49a84703226e85d",
+//             "destAccountId": "62f372f7277f9204862094b1", "amount": 1
+//     }
+// }	
 
 //Transaction's controller
 const addTransaction = async (req, res) => {
@@ -33,14 +40,15 @@ const addTransaction = async (req, res) => {
     
     Utils.addMoneyToAccount(dstAcc, Data.data.amount)
     Utils.subMoneyfromAccount(srcAcc, Data.data.amount)
-    //let block = new Block()
+    
     let newTran = new Transaction({ //need to change here
         id: Data.id,
-        // thisHash: Data.thisHash,
+        // thisHash: Data.thisHash, - TODO:  with new Block() before!!
         // prevHash: Data.prevHash,
         data: Data.data,
         dateOfTrans: Date.now()
     });
+    let block = new Block(newTran);
     // if (req.session.user.role != 'M') {
     //     res.send("Need to get autorization from manager")
     // }
@@ -108,3 +116,18 @@ router.route("/deleteAll").get(deleteAllTran);
 
 
 module.exports = router
+
+/* should be in db
+{
+"data": {
+    "srcAccountId": "",
+        "destAccountId": "",
+            "amount": 5
+},
+"_id": "62f18e1adea9bfedb0970d00",
+    "thisHash": "99999",
+        "prevHash": "22222",
+            "dateOfTrans": "2022-08-08T22:28:42.419Z",
+                "__v": 0
+	},
+*/

@@ -15,14 +15,18 @@ router.route("/").post((req, res, next) => {
 });
 
 //CREATE LOAN 
+
 // {
-//     "srcAccountId": "62ecde84c444f977b9bc2ec8",
-//         "destAccountId": "62ecdeaac444f977b9bc2ecc",
-//             "amount": "10",
-//                 "managerID": "111",
-//                     "dateOfLoan": "",
-//                         "duration": "2"
+//     "srcAccountId": "",
+//         "destAccountId": "",
+//             "amount": 5,
+//                 "managerID": "",
+//                     "duration": "2",
+//                          "approved": 1
 // }
+
+
+
 //controllers funcs - (maybe passe it to new controllers folder/file).
 const addLoan = async (req, res) => {
     let data = req.body
@@ -67,26 +71,7 @@ const addLoan = async (req, res) => {
     }
 }
 
-const deleteLoan = async (req, res) => {
-    //need to check if the session is a admin 
-    const id = req.params.id.slice(1);
-    const tran = await Loan.findByIdAndRemove(id).exec(function (err, item) {
-        if (err) {
-            return res.json({ success: false, msg: 'Cannot remove item' });
-        }
-        if (!item) {
-            return res.status(404).json({ success: false, msg: 'Loan not found' });
-        }
-        res.json({ success: true, msg: 'Loan deleted.' });
-    });
-}
 
-const deleteAllLoan = async (req, res) => {
-    try {
-        await Loan.remove({})
-    } catch (error) { res.status(400).send(error.message); }
-    res.send("All loans deleted");
-}
 
 const updateLoan = async (req, res) => {
     try {
@@ -111,6 +96,26 @@ const getAllLoans = async (req, res) => {
         .catch((err) => res.status(400).json("Error: " + err));
 }
 
+const deleteLoan = async (req, res) => {
+    //need to check if the session is a admin 
+    const id = req.params.id.slice(1);
+    const tran = await Loan.findByIdAndRemove(id).exec(function (err, item) {
+        if (err) {
+            return res.json({ success: false, msg: 'Cannot remove item' });
+        }
+        if (!item) {
+            return res.status(404).json({ success: false, msg: 'Loan not found' });
+        }
+        res.json({ success: true, msg: 'Loan deleted.' });
+    });
+}
+
+const deleteAllLoan = async (req, res) => {
+    try {
+        await Loan.remove({})
+    } catch (error) { res.status(400).send(error.message); }
+    res.send("All loans deleted");
+}
 //loan's routes
 router.route("/create").post(addLoan);
 router.route("/delete/:id").post(deleteLoan);

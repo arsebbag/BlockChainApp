@@ -1,4 +1,3 @@
-
 const { Schema, model } = require('mongoose')
 
 const Person = require('./Person')
@@ -9,7 +8,7 @@ const user = new Schema({
   ...Person,
   ...Credentials,
   role: { type: String }, //will be 'A' for admin OR 'B' for basic user
-  message: String
+  //message: String
 }, { versionKey: false });
 
 module.exports = model("User", user);

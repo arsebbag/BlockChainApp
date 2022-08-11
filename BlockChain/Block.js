@@ -1,8 +1,7 @@
 const crypto = require('crypto'); // Import NodeJS's Crypto Module
 
 class Block { // Our Block Class
-    constructor(data, prevHash, index) {
-        //this.index = index;
+    constructor(data, prevHash) {
         this.timestamp = Date.now(); // Get the current timestamp
         this.data = data; // Store sender, reciever, amount of transaction. 
         this.prevHash = prevHash // Store the previous block's hash

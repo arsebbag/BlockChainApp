@@ -40,12 +40,12 @@ async function countAccounts() {
 }
 async function changeToILS() {
     let rate = await changeUSDtoILS(1);
-    console.log(rate)
+    //console.log(rate)
     return LEVCOIN * rate
 }
 //change LEVCOIN value
 function updateLevCoinValue(num) {
-    countUsers += 1;
+    countUsers += 10;
     countLevCoin += num;
     console.log(countLevCoin)
     console.log(countUsers)

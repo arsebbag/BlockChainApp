@@ -46,7 +46,7 @@ router.route("/login").post(async (req, res, next) => {
         let sessUser = await User.findOne({ username: req.body.username })//.exec().catch(() => sessUser = null)
         let account = await Account.findOne({ ownerId: sessUser.id })//.exec().catch(() => account = null)
         let allNullRoleUsers = await ListRoleNull();
-        
+
         if (sessUser.role == 'M')// Manager
         {
           res.send({ message: "Manager authenticated", userDetails: sessUser, accountDetails: account, nullRole: allNullRoleUsers })//account.$assertPopulated
@@ -93,7 +93,8 @@ router.route("/register").post((req, res) => {
       phone: data.phone,
       username: data.username,
       password: hashedPassword,
-      role: data.role == 'M' ? 'M' : null //null
+      role: data.role == 'M' ? 'M' : null, //null
+      message: data.message
     });
 
     await newUser.save();

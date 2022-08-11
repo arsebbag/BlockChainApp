@@ -26,16 +26,15 @@ const addTransaction = async (req, res) => {
     const Data = req.body;
     let srcAcc = await Utils.findAccountDetails(Data.data.srcAccountId)
     let dstAcc = await Utils.findAccountDetails(Data.data.destAccountId)
-
     //first check and after fill and save in database
     let getAuth = Utils.transactionAutorization(srcAcc.balance, dstAcc.balance, Data.data.amount); //verification of accounts balances
     if (!getAuth.cond) {
-        res.send(getAuth.message);
+        return res.send(getAuth.message);
     }
     else if (!Utils.checkBalance(Data.data.srcAccountId)) {
         // var io = io.listen(server);
         // io.clients[sessionID].send()
-        res.send("Transaction unauthorized - source account don't have enough money for this transaction");
+        return res.send("Transaction unauthorized - source account don't have enough money for this transaction");
     }
     
     Utils.addMoneyToAccount(dstAcc, Data.data.amount)
@@ -43,14 +42,12 @@ const addTransaction = async (req, res) => {
     
     let newTran = new Transaction({ //need to change here
         id: Data.id,
-        // thisHash: Data.thisHash, - TODO:  with new Block() before!!
-        // prevHash: Data.prevHash,
+        //thisHash: //Data.thisHash, //- TODO:  with new Block() before!!
+        //prevHash: 
         data: Data.data,
         dateOfTrans: Date.now()
     });
-    console.log(newTran)
-    console.log(typeof newTran)
-    let block = new Block(newTran);
+    //let block = new Block(newTran, null);
     // if (req.session.user.role != 'M') {
     //     res.send("Need to get autorization from manager")
     // }

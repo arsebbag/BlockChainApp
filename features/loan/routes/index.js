@@ -53,8 +53,8 @@ const addLoan = async (req, res) => {
             //res.send(getAuth.message);
         }
         //handle accounts Balances for the loan.
-        Utils.addMoneyToAccount(dstAcc, data.amount)
-        Utils.subMoneyfromAccount(srcAcc, data.amount)
+        Utils.addMoneyToAccount(srcAcc, data.amount)
+        Utils.subMoneyfromAccount(dstAcc, data.amount)
 
         let newLoan = new Loan({
             srcAccountId: data.srcAccountId,

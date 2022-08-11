@@ -1,3 +1,4 @@
+const Block = require("../BlockChain/Block").Block;
 class BlockChain { // Our Blockchain Object
     constructor() {
         this.blockchain = [this.startGenesisBlock()] // Initialize a new array of blocks, starting with a genesis block

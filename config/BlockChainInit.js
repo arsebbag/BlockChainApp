@@ -1,9 +1,8 @@
 const block = require("../BlockChain/Block")
-const blockChain = require("../BlockChain/BlockChain")
+const BlockChain = require("../BlockChain/BlockChain").BlockChain
 
 function createChain() {
-    const Chaine = new blockChain()
-    
+    const Chaine = new BlockChain()
 }
-
-module.exports = {createChain}
+//new BlockChain()
+module.exports = { createChain}

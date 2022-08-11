@@ -48,6 +48,8 @@ const addTransaction = async (req, res) => {
         data: Data.data,
         dateOfTrans: Date.now()
     });
+    console.log(newTran)
+    console.log(typeof newTran)
     let block = new Block(newTran);
     // if (req.session.user.role != 'M') {
     //     res.send("Need to get autorization from manager")

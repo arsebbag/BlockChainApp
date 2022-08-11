@@ -92,8 +92,8 @@ io.on("connection", (socket) => {
 });
 
 
-// const initChain = require('./config/BlockChainInit')
-// initChain();
+const initChain = require('./config/BlockChainInit').createChain
+initChain();
 
 module.exports = app;
 

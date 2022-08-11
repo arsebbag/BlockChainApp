@@ -7,15 +7,6 @@ const User = require("../../authentication/models/user");
 const Account = require("../models/account")
 const Exchange = require("../../api/routes/moneyExchange")
 const Utils = require("../../../utils/common")
-// encrypt the session details.
-// router.use(
-//     session({
-//         secret: "secretcode",
-//         resave: true,
-//         saveUninitialized: true,
-//     })
-// );
-// router.use(passport.session());
 
 //Account controllers
 router.route("/").get((req, res, next) => {
@@ -46,7 +37,7 @@ router.route("/create").post(async (req, res) => {
             return res.send(`user ${user.username}, no. ${data.ownerId} already have an account!`);
         } //else {
         //notif
-        await Utils.updateUserRole(user.id, 'B')
+        await Utils.updateUserRole(user.id, user.role == 'M' ? 'M':'B')
         let newAccount = new Account({
             ownerId: data.ownerId,
             balance: data.balance,// - not need it if the manager give money + create func addMoneyToAccount()
@@ -62,10 +53,6 @@ router.route("/create").post(async (req, res) => {
     }
 
 });
-// count if this user exist and how match account
-async function CountUserID(userId) {
-    return await Account.countDocuments({ ownerId: userId });
-}
 
 
 const updateAccount = async (req, res) => {
@@ -78,7 +65,9 @@ const updateAccount = async (req, res) => {
         res.send(err)
     }
 }
-
+// async function deleteOneAccount(id){
+//     return await 
+// }
 const deleteAccount = async (req, res) => {
     //TODO: need to check if the session is a admin 
     const id = req.params.id.slice(1);
@@ -129,6 +118,9 @@ router.route("/update/:id").put(updateAccount);
 router.route("/zero").get(balanceZero);
 router.route("/exchange").post(exchangeRates);
 
-
+// count if this user exist and how match account
+async function CountUserID(userId) {
+    return await Account.countDocuments({ ownerId: userId });
+}
 module.exports = router//, {getAllBalanceCurrencies}
 

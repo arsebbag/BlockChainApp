@@ -23,5 +23,6 @@ const PersonSchema = ({
         //required: true
         //change email to be username
     },
-})
+});
+
 module.exports = PersonSchema

@@ -13,8 +13,6 @@ const socket = require("socket.io");
 const messageRoutes = require("./features/chat/routes/messages");
 const authRoutes = require("./features/chat/routes/auth");
 
-
-
 //----------------------------------------- END OF IMPORTS---------------------------------------------------
 var app = express();
 var usersRouter = require("./features/authentication/routes/auth");
@@ -44,6 +42,20 @@ app.use(
     saveUninitialized: true,
   })
 );
+
+// ------------------- deployment ---------------------
+
+__dirname = path.resolve();
+app.use(express.static(path.join(__dirname, "../client/build")));
+console.log(path.join(__dirname, "../client/build"));
+app.get("*", (req, res) => {
+  res.sendFile(
+    path.resolve(path.join(__dirname, "../client/build"), "index.html")
+  );
+});
+
+// ------------------- deployment ---------------------
+
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
 
@@ -52,11 +64,15 @@ app.use(passport.initialize());
 app.use(passport.session());
 require("./passportConfig")(passport);
 
-const server = app.listen(port, () => {
-  console.log("Server is listening to", port);
+const server = app.listen(process.env.PORT || port, function () {
+  console.log(
+    "Express server listening on port %d in %s mode",
+    this.address().port,
+    app.settings.env
+  );
 });
 
-const connectToDB = require('./config/mongooseConnect')
+const connectToDB = require("./config/mongooseConnect");
 connectToDB();
 
 var notifyRouter = require("./features/notifyManager/routes/notifyRouter");
@@ -76,7 +92,7 @@ io.on("connection", (socket) => {
   socket.on("notify-user", (userId) => {
     console.log(userId);
 
-    socket.emit("zero", [] );
+    socket.emit("zero", []);
   });
 
   socket.on("add-user", (userId) => {
@@ -91,9 +107,7 @@ io.on("connection", (socket) => {
   });
 });
 
-
-const initChain = require('./config/BlockChainInit').createChain
+const initChain = require("./config/BlockChainInit").createChain;
 initChain();
 
 module.exports = app;
-
